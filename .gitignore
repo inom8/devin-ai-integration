@@ -5,3 +5,6 @@ node_modules/
 .idea/
 __pycache__/
 *.pyc
+dist/
+out/
+*.exe.blockmap

@@ -1,0 +1,20 @@
+<!doctype html>
+<!--
+  Hidden window that runs the extension's background service-worker logic
+  inside Electron. The chrome.* shim is installed by preload.js; the
+  scripts that background.js normally pulls in via importScripts() are
+  loaded here as <script> tags first, so the importScripts() call in
+  background.js becomes a no-op.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Student To-Do — Background</title>
+  </head>
+  <body>
+    <script src="../js/util.js"></script>
+    <script src="../js/parser.js"></script>
+    <script src="../js/store.js"></script>
+    <script src="../background.js"></script>
+  </body>
+</html>

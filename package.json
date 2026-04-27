@@ -1,12 +1,74 @@
 {
   "name": "student-todo-extension",
   "version": "0.1.0",
-  "description": "Student-focused to-do list Chrome extension (Manifest V3).",
+  "description": "Student-focused to-do list. Ships as both a Chrome extension and a desktop (Electron) app.",
   "private": true,
+  "main": "electron/main.js",
   "scripts": {
     "test": "node --test tests/*.test.mjs",
-    "lint:syntax": "for f in $(find . -name 'node_modules' -prune -o -name '*.js' -print); do node --check \"$f\" || exit 1; done",
-    "validate:manifest": "node -e \"JSON.parse(require('fs').readFileSync('manifest.json','utf8'))\""
+    "lint:syntax": "for f in $(find . -path ./node_modules -prune -o -path ./dist -prune -o -name '*.js' -print | grep -v '^./node_modules' | grep -v '^./dist'); do node --check \"$f\" || exit 1; done",
+    "validate:manifest": "node -e \"JSON.parse(require('fs').readFileSync('manifest.json','utf8'))\"",
+    "start": "electron .",
+    "desktop:dev": "electron .",
+    "build:exe": "electron-builder --win nsis portable --x64",
+    "build:exe:portable": "electron-builder --win portable --x64",
+    "build:exe:dir": "electron-builder --win dir --x64"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.studenttodo.desktop",
+    "productName": "Student To-Do",
+    "copyright": "Copyright © 2024 Student To-Do",
+    "directories": {
+      "output": "dist",
+      "buildResources": "icons"
+    },
+    "files": [
+      "manifest.json",
+      "popup.html",
+      "options.html",
+      "background.js",
+      "js/**/*",
+      "css/**/*",
+      "icons/**/*",
+      "electron/**/*",
+      "package.json",
+      "!**/{.DS_Store,.git,.gitignore,.vscode,.idea}",
+      "!tests/**",
+      "!scripts/**"
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "icons/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Student To-Do",
+      "artifactName": "${productName}-${version}-x64-Setup.${ext}"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-x64-portable.${ext}"
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "icon": "icons/icon128.png",
+      "category": "Office"
+    },
+    "mac": {
+      "target": ["dmg"],
+      "icon": "icons/icon128.png",
+      "category": "public.app-category.productivity"
+    }
+  }
 }

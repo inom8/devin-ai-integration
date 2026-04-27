@@ -46,8 +46,7 @@
         { "target": "nsis", "arch": ["x64"] },
         { "target": "portable", "arch": ["x64"] }
       ],
-      "icon": "icons/icon.ico",
-      "artifactName": "${productName}-${version}-${arch}-${target}.${ext}"
+      "icon": "icons/icon.ico"
     },
     "nsis": {
       "oneClick": false,
@@ -55,10 +54,11 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Student To-Do"
+      "shortcutName": "Student To-Do",
+      "artifactName": "${productName}-${version}-x64-Setup.${ext}"
     },
     "portable": {
-      "artifactName": "${productName}-${version}-portable.${ext}"
+      "artifactName": "${productName}-${version}-x64-portable.${ext}"
     },
     "linux": {
       "target": ["AppImage"],

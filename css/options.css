@@ -1,0 +1,75 @@
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --border: #e6e8eb;
+  --text: #1c1f23;
+  --muted: #6b7280;
+  --accent: #5b8def;
+  --danger: #e5484d;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --surface: #171a20;
+    --border: #2a2f38;
+    --text: #f1f3f5;
+    --muted: #9aa0a6;
+    --accent: #7aa6ff;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+.container { max-width: 720px; margin: 32px auto; padding: 0 24px; }
+h1 { margin-bottom: 16px; font-size: 22px; }
+h2 { margin: 0 0 10px; font-size: 16px; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+label {
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+label.row { flex-direction: row; align-items: center; gap: 8px; }
+label.row input { width: auto; }
+input[type=number],
+input[type=text],
+input[type=color] {
+  width: 220px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+}
+.row { display: flex; align-items: center; }
+.row.gap { gap: 8px; flex-wrap: wrap; }
+button {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 6px;
+  cursor: pointer;
+}
+button.danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+button.small { padding: 3px 8px; font-size: 12px; }
+.projects-list { list-style: none; margin: 0 0 12px; padding: 0; }
+.project-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.project-dot { width: 10px; height: 10px; border-radius: 50%; }
+.project-name { flex: 1; }
+.new-project { display: flex; gap: 8px; align-items: center; }
+.new-project input[type=text] { flex: 1; max-width: none; }
+.muted { color: var(--muted); font-size: 12px; }
+.status { color: var(--accent); font-size: 13px; min-height: 18px; }

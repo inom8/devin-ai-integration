@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Student To-Do</title>
+    <link rel="stylesheet" href="css/popup.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-dot"></span>
+          <span class="brand-name">Student To-Do</span>
+        </div>
+        <div class="progress" id="progress" title="Today's progress">0 / 0</div>
+      </header>
+
+      <form id="quick-add-form" class="quick-add" autocomplete="off">
+        <input
+          id="quick-add-input"
+          type="text"
+          placeholder="Quick add: Math homework tomorrow 6pm #school p1"
+          aria-label="Quick add task"
+        />
+        <button type="submit" aria-label="Add task">+</button>
+      </form>
+      <div class="parsed-preview" id="parsed-preview" aria-live="polite"></div>
+
+      <nav class="tabs" id="tabs">
+        <button class="tab active" data-view="today">Today</button>
+        <button class="tab" data-view="upcoming">Upcoming</button>
+        <button class="tab" data-view="inbox">Inbox</button>
+        <button class="tab" data-view="projects">Projects</button>
+        <button class="tab" data-view="focus">Focus</button>
+      </nav>
+
+      <section id="filters" class="filters hidden">
+        <span class="filter-label">Filters:</span>
+        <div class="filter-group" id="filter-priority"></div>
+        <div class="filter-group" id="filter-tag"></div>
+        <button id="clear-filters" class="link">Clear</button>
+      </section>
+
+      <main id="view" class="view"></main>
+
+      <footer class="footer">
+        <span id="streak" title="Daily completion streak">🔥 0</span>
+        <button id="open-options" class="link">Settings</button>
+      </footer>
+    </div>
+
+    <template id="task-item-template">
+      <li class="task">
+        <button class="check" aria-label="Toggle complete"></button>
+        <div class="task-body">
+          <div class="task-row1">
+            <span class="task-title"></span>
+            <span class="task-priority"></span>
+          </div>
+          <div class="task-meta">
+            <span class="task-due"></span>
+            <span class="task-project"></span>
+            <span class="task-tags"></span>
+            <span class="task-recurrence"></span>
+          </div>
+          <ul class="subtasks"></ul>
+          <div class="task-actions">
+            <button class="add-sub link">+ subtask</button>
+            <button class="edit link">Edit</button>
+            <button class="delete link danger">Delete</button>
+          </div>
+        </div>
+      </li>
+    </template>
+
+    <script src="js/util.js"></script>
+    <script src="js/parser.js"></script>
+    <script src="js/store.js"></script>
+    <script src="js/views.js"></script>
+    <script src="js/focus.js"></script>
+    <script src="js/popup.js"></script>
+  </body>
+</html>

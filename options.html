@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Student To-Do — Settings</title>
+    <link rel="stylesheet" href="css/options.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Student To-Do — Settings</h1>
+
+      <section class="card">
+        <h2>Focus Mode</h2>
+        <label>
+          Focus duration (minutes)
+          <input type="number" id="focus-duration" min="1" max="180" />
+        </label>
+        <label>
+          Break duration (minutes)
+          <input type="number" id="break-duration" min="1" max="60" />
+        </label>
+      </section>
+
+      <section class="card">
+        <h2>Reminders</h2>
+        <label>
+          Default reminder (minutes before due)
+          <input type="number" id="default-reminder" min="0" max="1440" />
+        </label>
+        <label class="row">
+          <input type="checkbox" id="enable-notifications" />
+          Enable desktop notifications
+        </label>
+      </section>
+
+      <section class="card">
+        <h2>Projects</h2>
+        <ul id="projects-list" class="projects-list"></ul>
+        <form id="new-project-form" class="new-project">
+          <input id="new-project-name" placeholder="New project name" required />
+          <input id="new-project-color" type="color" value="#5b8def" />
+          <button type="submit">Add</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Data</h2>
+        <div class="row gap">
+          <button id="export-json">Export JSON</button>
+          <button id="import-json">Import JSON</button>
+          <input id="import-file" type="file" accept="application/json" hidden />
+          <button id="clear-completed" class="danger">Clear completed</button>
+          <button id="clear-all" class="danger">Reset everything</button>
+        </div>
+        <p class="muted" id="data-status"></p>
+      </section>
+
+      <p class="status" id="status"></p>
+    </main>
+    <script src="js/util.js"></script>
+    <script src="js/store.js"></script>
+    <script src="js/options.js"></script>
+  </body>
+</html>

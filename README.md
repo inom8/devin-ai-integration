@@ -40,6 +40,45 @@ A focused, student-friendly to-do list that lives in your browser toolbar. Built
 5. Click **Load unpacked** and select the repo folder.
 6. Pin the extension from the toolbar puzzle-piece menu.
 
+## Desktop build (Windows `.exe`)
+
+The same code also ships as a standalone desktop app via Electron. The
+extension files (`popup.html`, `options.html`, `background.js`, …) are
+loaded unchanged; a small `chrome.*` shim in [`electron/preload.js`](electron/preload.js)
+provides `chrome.storage`, `chrome.alarms`, `chrome.notifications`, and
+`chrome.runtime.{sendMessage,onMessage,openOptionsPage}` on top of
+Electron primitives.
+
+```bash
+# Install dev deps (one time)
+npm install
+
+# Run the desktop app locally
+npm start
+
+# Produce a Windows installer + portable .exe (writes to ./dist)
+npm run build:exe
+```
+
+`npm run build:exe` produces two artifacts in `dist/`:
+
+- `Student To-Do-<version>-x64-nsis.exe` — NSIS installer (Start menu + desktop shortcut, uninstaller)
+- `Student To-Do-<version>-portable.exe` — single-file portable build (no install)
+
+Cross-building the Windows `.exe` from Linux/macOS works for unsigned
+NSIS/portable targets via `electron-builder`. For a signed release build,
+run `npm run build:exe` on Windows (or in a Windows CI runner) with your
+code-signing certificate configured.
+
+User data (tasks, projects, settings) is persisted as JSON in the
+platform user-data directory:
+
+| OS      | Path                                                          |
+| ------- | ------------------------------------------------------------- |
+| Windows | `%APPDATA%\Student To-Do\storage.json`                        |
+| macOS   | `~/Library/Application Support/Student To-Do/storage.json`    |
+| Linux   | `~/.config/Student To-Do/storage.json`                        |
+
 ## Settings
 
 Right-click the extension → **Options** to:
@@ -68,6 +107,10 @@ js/
   options.js             # Options page controller
 scripts/make_icons.py    # Regenerate icons from the source design
 tests/                   # Minimal node:test suites for the pure modules
+electron/
+  main.js                # Electron main process: windows, alarms, IPC
+  preload.js             # chrome.* shim exposed to the renderer
+  background.html        # Hidden window that runs background.js as-is
 ```
 
 ## Tests

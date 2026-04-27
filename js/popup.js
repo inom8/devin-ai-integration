@@ -279,13 +279,23 @@
 
   // -------- Init --------
 
+  function applyTheme(theme) {
+    if (theme === "light" || theme === "dark") {
+      document.documentElement.dataset.theme = theme;
+    } else {
+      delete document.documentElement.dataset.theme;
+    }
+  }
+
   document.addEventListener("DOMContentLoaded", async () => {
     setupQuickAdd();
     setupTabs();
     await refresh();
+    applyTheme(state.current && state.current.settings && state.current.settings.theme);
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area === "local" && changes[Store.STORAGE_KEY]) {
         state.current = changes[Store.STORAGE_KEY].newValue || state.current;
+        applyTheme(state.current && state.current.settings && state.current.settings.theme);
         render();
       }
     });

@@ -17,6 +17,7 @@
       breakDurationMin: 10,
       defaultReminderMinutesBefore: 0,
       enableNotifications: true,
+      theme: "system",
     },
     streak: { count: 0, lastCompletedDay: null },
   };

@@ -218,14 +218,29 @@
       due = setTime(due, time.hours, time.minutes);
     }
 
-    if (due) result.due = due.toISOString();
-
-    // recurrence with a weekday list and no due date → first matching weekday
-    if (!result.due && result.recurrence && result.recurrence.days && result.recurrence.days.length) {
-      let next = nextWeekday(now, result.recurrence.days[0]);
-      if (time) next = setTime(next, time.hours, time.minutes);
-      result.due = next.toISOString();
+    // If recurrence has a weekday list, the due date must land on one of those
+    // days. Snap forward to the next matching day (covers both: no explicit
+    // date given, and a time-of-day bumped due into a non-rule day).
+    const days = result.recurrence && result.recurrence.days;
+    if (days && days.length) {
+      if (!due) due = new Date(now);
+      const daySet = new Set(days);
+      let guard = 0;
+      while (!daySet.has(due.getDay()) && guard++ < 8) {
+        due.setDate(due.getDate() + 1);
+      }
+      if (time) due = setTime(due, time.hours, time.minutes);
+      // if time was set and the snapped day is today but the time has already
+      // passed, advance to the next matching day after today
+      if (time && due <= now) {
+        do {
+          due.setDate(due.getDate() + 1);
+        } while (!daySet.has(due.getDay()));
+        due = setTime(due, time.hours, time.minutes);
+      }
     }
+
+    if (due) result.due = due.toISOString();
 
     result.title = s.replace(/\s+/g, " ").trim();
     return result;

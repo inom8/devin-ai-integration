@@ -101,6 +101,26 @@ test("recurrence: explicit weekdays", () => {
   assert.deepEqual(r.recurrence.days.sort(), [1, 3, 5]);
 });
 
+test("recurrence: due date snaps to a day in the rule", () => {
+  // Regression: previously, when a time-of-day already passed today, the
+  // parser bumped due to tomorrow without checking that tomorrow was in
+  // recurrence.days. This verifies due always lands on a rule day.
+  for (const phrase of [
+    "Workout every monday, wednesday, friday 7am",
+    "Standup every weekday 9am",
+    "Brunch every saturday, sunday 11am",
+  ]) {
+    const r = Parser.parse(phrase);
+    assert.ok(r.due, `expected a due date for: ${phrase}`);
+    const day = new Date(r.due).getDay();
+    assert.ok(
+      r.recurrence.days.includes(day),
+      `due day ${day} not in rule ${JSON.stringify(r.recurrence.days)} for: ${phrase}`
+    );
+    assert.ok(new Date(r.due) > new Date(), `due must be in the future for: ${phrase}`);
+  }
+});
+
 test("nextRecurrence rolls daily forward", () => {
   const start = "2026-04-27T09:00:00.000Z";
   const next = Parser.nextRecurrence(start, { type: "daily", interval: 1 });

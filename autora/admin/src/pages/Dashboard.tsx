@@ -17,21 +17,26 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    // Placeholder - in production, call a stats endpoint
     const fetchStats = async () => {
       try {
-        const [providers, bookings] = await Promise.all([
-          api.get("/providers").catch(() => ({ data: [] })),
-          api.get("/bookings").catch(() => ({ data: [] })),
-        ]);
-        setStats({
-          totalUsers: 0,
-          totalProviders: Array.isArray(providers.data) ? providers.data.length : 0,
-          totalBookings: Array.isArray(bookings.data) ? bookings.data.length : 0,
-          activeTowing: 0,
-        });
-      } catch (err) {
-        console.error(err);
+        const res = await api.get("/admin/stats");
+        setStats(res.data);
+      } catch {
+        // Fallback to counting from public endpoints
+        try {
+          const [providers, bookings] = await Promise.all([
+            api.get("/providers").catch(() => ({ data: [] })),
+            api.get("/bookings").catch(() => ({ data: [] })),
+          ]);
+          setStats({
+            totalUsers: 0,
+            totalProviders: Array.isArray(providers.data) ? providers.data.length : 0,
+            totalBookings: Array.isArray(bookings.data) ? bookings.data.length : 0,
+            activeTowing: 0,
+          });
+        } catch (err) {
+          console.error(err);
+        }
       }
     };
     fetchStats();

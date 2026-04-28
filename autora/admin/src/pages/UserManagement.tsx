@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import api from "../services/api";
 
 interface User {
   id: string;
@@ -9,8 +10,23 @@ interface User {
 }
 
 export default function UserManagement() {
-  const [users] = useState<User[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await api.get("/admin/users");
+        setUsers(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const filtered = users.filter(
     (u) =>
@@ -18,6 +34,8 @@ export default function UserManagement() {
       u.name?.toLowerCase().includes(search.toLowerCase()) ||
       u.phone.includes(search)
   );
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div>
@@ -50,7 +68,7 @@ export default function UserManagement() {
           {filtered.length === 0 ? (
             <tr>
               <td colSpan={5} style={{ ...tdStyle, textAlign: "center", color: "#94a3b8" }}>
-                No users found. Users will appear here once the API is connected.
+                No users found
               </td>
             </tr>
           ) : (

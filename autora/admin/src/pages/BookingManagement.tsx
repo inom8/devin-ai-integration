@@ -26,7 +26,7 @@ export default function BookingManagement() {
   useEffect(() => {
     const fetch = async () => {
       try {
-        const res = await api.get("/bookings");
+        const res = await api.get("/admin/bookings");
         setBookings(res.data);
       } catch (err) {
         console.error(err);

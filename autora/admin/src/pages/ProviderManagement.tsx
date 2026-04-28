@@ -31,7 +31,8 @@ export default function ProviderManagement() {
 
   const toggleVerify = async (id: string, currentStatus: boolean) => {
     try {
-      await api.put(`/providers/${id}`, { isVerified: !currentStatus });
+      const action = currentStatus ? "revoke" : "verify";
+      await api.put(`/admin/providers/${id}/${action}`);
       setProviders((prev) =>
         prev.map((p) => (p.id === id ? { ...p, isVerified: !currentStatus } : p))
       );

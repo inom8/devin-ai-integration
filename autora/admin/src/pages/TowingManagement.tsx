@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import api from "../services/api";
 
 interface TowingRequest {
   id: string;
@@ -18,7 +19,24 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function TowingManagement() {
-  const [requests] = useState<TowingRequest[]>([]);
+  const [requests, setRequests] = useState<TowingRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const res = await api.get("/admin/towing");
+        setRequests(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRequests();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div>

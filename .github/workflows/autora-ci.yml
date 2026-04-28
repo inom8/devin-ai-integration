@@ -1,0 +1,57 @@
+name: Autora CI
+
+on:
+  push:
+    branches: [autora/main]
+    paths: ["autora/**"]
+  pull_request:
+    branches: [autora/main]
+    paths: ["autora/**"]
+
+jobs:
+  backend-lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: autora/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: autora/backend/package-lock.json
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npm run lint
+
+  backend-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: autora/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: autora/backend/package-lock.json
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npm test
+
+  admin-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: autora/admin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: autora/admin/package-lock.json
+      - run: npm ci
+      - run: npm run build

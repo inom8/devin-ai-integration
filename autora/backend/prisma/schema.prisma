@@ -1,0 +1,196 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  DRIVER
+  SERVICE_PROVIDER
+  TOWING_PROVIDER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TowingStatus {
+  REQUESTED
+  ACCEPTED
+  EN_ROUTE
+  ARRIVED
+  COMPLETED
+  CANCELLED
+}
+
+enum ReviewTargetType {
+  SERVICE_PROVIDER
+  TOWING_PROVIDER
+}
+
+enum PaymentMethod {
+  PAYME
+  CLICK
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id           String         @id @default(uuid())
+  phone        String         @unique
+  name         String?
+  role         Role           @default(DRIVER)
+  passwordHash String?
+  avatarUrl    String?
+  createdAt    DateTime       @default(now())
+
+  serviceProvider ServiceProvider?
+  towingProvider  TowingProvider?
+  bookings        Booking[]
+  towingRequests  TowingRequest[]
+  reviews         Review[]
+  notifications   Notification[]
+  payments        Payment[]
+}
+
+model ServiceProvider {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  businessName     String
+  description      String?
+  latitude         Float
+  longitude        Float
+  address          String?
+  workingHoursJson String?
+  isVerified       Boolean  @default(false)
+  rating           Float    @default(0)
+  reviewCount      Int      @default(0)
+
+  user     User              @relation(fields: [userId], references: [id])
+  services ProviderService[]
+  bookings Booking[]
+}
+
+model ServiceCategory {
+  id       String            @id @default(uuid())
+  name     String            @unique
+  services ProviderService[]
+}
+
+model ProviderService {
+  id          String   @id @default(uuid())
+  providerId  String
+  categoryId  String
+  price       Float
+  duration    Int?
+  description String?
+
+  provider ServiceProvider @relation(fields: [providerId], references: [id])
+  category ServiceCategory @relation(fields: [categoryId], references: [id])
+  bookings Booking[]
+}
+
+model TowingProvider {
+  id          String  @id @default(uuid())
+  userId      String  @unique
+  vehicleType String
+  plateNumber String
+  latitude    Float?
+  longitude   Float?
+  isAvailable Boolean @default(true)
+  rating      Float   @default(0)
+  reviewCount Int     @default(0)
+
+  user            User            @relation(fields: [userId], references: [id])
+  towingRequests  TowingRequest[]
+}
+
+model Booking {
+  id                String        @id @default(uuid())
+  userId            String
+  providerId        String
+  providerServiceId String
+  status            BookingStatus @default(PENDING)
+  scheduledAt       DateTime
+  notes             String?
+  totalPrice        Float
+  createdAt         DateTime      @default(now())
+
+  user            User            @relation(fields: [userId], references: [id])
+  provider        ServiceProvider @relation(fields: [providerId], references: [id])
+  providerService ProviderService @relation(fields: [providerServiceId], references: [id])
+  payment         Payment?
+}
+
+model TowingRequest {
+  id               String       @id @default(uuid())
+  userId           String
+  towingProviderId String?
+  pickupLat        Float
+  pickupLng        Float
+  pickupAddress    String?
+  dropoffLat       Float?
+  dropoffLng       Float?
+  dropoffAddress   String?
+  status           TowingStatus @default(REQUESTED)
+  estimatedArrival DateTime?
+  price            Float?
+  createdAt        DateTime     @default(now())
+
+  user           User            @relation(fields: [userId], references: [id])
+  towingProvider TowingProvider? @relation(fields: [towingProviderId], references: [id])
+  payment        Payment?
+}
+
+model Review {
+  id         String           @id @default(uuid())
+  userId     String
+  targetType ReviewTargetType
+  targetId   String
+  rating     Int
+  comment    String?
+  createdAt  DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  body      String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Payment {
+  id               String        @id @default(uuid())
+  userId           String
+  bookingId        String?       @unique
+  towingRequestId  String?       @unique
+  amount           Float
+  method           PaymentMethod
+  status           PaymentStatus @default(PENDING)
+  transactionId    String?
+  createdAt        DateTime      @default(now())
+
+  user           User           @relation(fields: [userId], references: [id])
+  booking        Booking?       @relation(fields: [bookingId], references: [id])
+  towingRequest  TowingRequest? @relation(fields: [towingRequestId], references: [id])
+}

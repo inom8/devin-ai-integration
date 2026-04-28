@@ -5,12 +5,24 @@
 
   let state = null;
 
+  function applyTheme(theme) {
+    if (theme === "light" || theme === "dark") {
+      document.documentElement.dataset.theme = theme;
+    } else {
+      delete document.documentElement.dataset.theme;
+    }
+  }
+
   async function load() {
     state = await Store.getState();
     document.getElementById("focus-duration").value = state.settings.focusDurationMin;
     document.getElementById("break-duration").value = state.settings.breakDurationMin;
     document.getElementById("default-reminder").value = state.settings.defaultReminderMinutesBefore;
     document.getElementById("enable-notifications").checked = !!state.settings.enableNotifications;
+    const theme = state.settings.theme || "system";
+    applyTheme(theme);
+    const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+    if (themeInput) themeInput.checked = true;
     renderProjects();
   }
 
@@ -23,7 +35,7 @@
       dot.style.background = p.color;
       const name = Util.el("span", { class: "project-name", text: p.name });
       const del = Util.el("button", {
-        class: "danger small",
+        class: "btn btn-ghost-danger small",
         text: "Delete",
         onclick: async () => {
           if (confirm(`Delete project "${p.name}"? Tasks in it will move to Inbox.`)) {
@@ -60,6 +72,14 @@
     document.getElementById("enable-notifications").addEventListener("change", async (e) => {
       await Store.updateSettings({ enableNotifications: e.target.checked });
       flash("Saved");
+    });
+    document.querySelectorAll('input[name="theme"]').forEach((r) => {
+      r.addEventListener("change", async (e) => {
+        const v = e.target.value;
+        await Store.updateSettings({ theme: v });
+        applyTheme(v);
+        flash("Saved");
+      });
     });
   }
 

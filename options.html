@@ -7,55 +7,119 @@
   </head>
   <body>
     <main class="container">
-      <h1>Student To-Do — Settings</h1>
+      <header class="page-header">
+        <h1>Settings</h1>
+        <p class="subtitle">Tune the look, the focus rhythm, and your projects.</p>
+      </header>
 
       <section class="card">
-        <h2>Focus Mode</h2>
-        <label>
-          Focus duration (minutes)
-          <input type="number" id="focus-duration" min="1" max="180" />
-        </label>
-        <label>
-          Break duration (minutes)
-          <input type="number" id="break-duration" min="1" max="60" />
-        </label>
+        <header class="card-header">
+          <h2>Appearance</h2>
+          <p class="card-sub">Choose a mode that suits your environment.</p>
+        </header>
+        <div class="theme-row" role="radiogroup" aria-label="Theme">
+          <label class="theme-option">
+            <input type="radio" name="theme" value="system" />
+            <span class="theme-card">
+              <span class="theme-swatch system">
+                <span class="half"></span>
+                <span class="half dark"></span>
+              </span>
+              <span class="theme-name">System</span>
+              <span class="theme-desc">Match your device</span>
+            </span>
+          </label>
+          <label class="theme-option">
+            <input type="radio" name="theme" value="light" />
+            <span class="theme-card">
+              <span class="theme-swatch light"></span>
+              <span class="theme-name">Light</span>
+              <span class="theme-desc">Warm paper</span>
+            </span>
+          </label>
+          <label class="theme-option">
+            <input type="radio" name="theme" value="dark" />
+            <span class="theme-card">
+              <span class="theme-swatch dark"></span>
+              <span class="theme-name">Dark</span>
+              <span class="theme-desc">Soft ink</span>
+            </span>
+          </label>
+        </div>
       </section>
 
       <section class="card">
-        <h2>Reminders</h2>
-        <label>
-          Default reminder (minutes before due)
-          <input type="number" id="default-reminder" min="0" max="1440" />
-        </label>
-        <label class="row">
+        <header class="card-header">
+          <h2>Focus Mode</h2>
+          <p class="card-sub">Default lengths for each session.</p>
+        </header>
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">Focus duration</span>
+            <span class="field-input">
+              <input type="number" id="focus-duration" min="1" max="180" />
+              <span class="field-suffix">min</span>
+            </span>
+          </label>
+          <label class="field">
+            <span class="field-label">Break duration</span>
+            <span class="field-input">
+              <input type="number" id="break-duration" min="1" max="60" />
+              <span class="field-suffix">min</span>
+            </span>
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <header class="card-header">
+          <h2>Reminders</h2>
+          <p class="card-sub">Quiet nudges before tasks come due.</p>
+        </header>
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">Default reminder</span>
+            <span class="field-input">
+              <input type="number" id="default-reminder" min="0" max="1440" />
+              <span class="field-suffix">min before</span>
+            </span>
+          </label>
+        </div>
+        <label class="check-row">
           <input type="checkbox" id="enable-notifications" />
-          Enable desktop notifications
+          <span>Enable desktop notifications</span>
         </label>
       </section>
 
       <section class="card">
-        <h2>Projects</h2>
+        <header class="card-header">
+          <h2>Projects</h2>
+          <p class="card-sub">Group related tasks under a colour.</p>
+        </header>
         <ul id="projects-list" class="projects-list"></ul>
         <form id="new-project-form" class="new-project">
           <input id="new-project-name" placeholder="New project name" required />
-          <input id="new-project-color" type="color" value="#5b8def" />
-          <button type="submit">Add</button>
+          <input id="new-project-color" type="color" value="#6b8e6e" aria-label="Project color" />
+          <button type="submit" class="btn btn-primary">Add</button>
         </form>
       </section>
 
       <section class="card">
-        <h2>Data</h2>
-        <div class="row gap">
-          <button id="export-json">Export JSON</button>
-          <button id="import-json">Import JSON</button>
+        <header class="card-header">
+          <h2>Data</h2>
+          <p class="card-sub">Export, import, or reset everything.</p>
+        </header>
+        <div class="btn-row">
+          <button id="export-json" class="btn">Export JSON</button>
+          <button id="import-json" class="btn">Import JSON</button>
           <input id="import-file" type="file" accept="application/json" hidden />
-          <button id="clear-completed" class="danger">Clear completed</button>
-          <button id="clear-all" class="danger">Reset everything</button>
+          <button id="clear-completed" class="btn btn-ghost-danger">Clear completed</button>
+          <button id="clear-all" class="btn btn-ghost-danger">Reset everything</button>
         </div>
         <p class="muted" id="data-status"></p>
       </section>
 
-      <p class="status" id="status"></p>
+      <p class="status" id="status" aria-live="polite"></p>
     </main>
     <script src="js/util.js"></script>
     <script src="js/store.js"></script>

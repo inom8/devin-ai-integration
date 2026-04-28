@@ -64,8 +64,12 @@
   function render(container, state, ctx) {
     Util.clear(container);
     const wrap = Util.el("div", { class: "focus" });
+    const dial = Util.el("div", { class: "focus-dial" });
     const display = Util.el("div", { class: "focus-display", text: "--:--" });
     const label = Util.el("div", { class: "focus-label muted" });
+    const dialInner = Util.el("div", { class: "focus-dial-inner" });
+    dialInner.append(display, label);
+    dial.append(dialInner);
     const buttons = Util.el("div", { class: "focus-buttons" });
 
     const startFocus = Util.el("button", {
@@ -85,19 +89,22 @@
     async function paint() {
       const s = await loadFocus();
       buttons.innerHTML = "";
+      dial.classList.remove("running", "paused");
       if (!s) {
         display.textContent = `${state.settings.focusDurationMin}:00`;
         label.textContent = "Ready when you are.";
         buttons.append(startFocus, startBreak);
       } else if (s.paused) {
         display.textContent = fmt(s.remainingMs);
-        label.textContent = `Paused (${s.mode})`;
+        label.textContent = `Paused — ${s.mode}`;
         buttons.append(resumeBtn, stopBtn);
+        dial.classList.add("paused");
       } else {
         const remaining = s.endsAt - Date.now();
         display.textContent = fmt(remaining);
-        label.textContent = `${s.mode === "focus" ? "Focus" : "Break"} — ${s.durationMin}m`;
+        label.textContent = `${s.mode === "focus" ? "Focus" : "Break"} · ${s.durationMin}m`;
         buttons.append(pauseBtn, stopBtn);
+        dial.classList.add("running");
       }
     }
 
@@ -122,7 +129,7 @@
       paint();
     };
 
-    wrap.append(display, label, buttons);
+    wrap.append(dial, buttons);
 
     const tip = Util.el("p", {
       class: "muted small focus-tip",

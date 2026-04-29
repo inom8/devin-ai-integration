@@ -1,0 +1,135 @@
+// ============================================================================
+// Supertrend + VWAP + EMA Confluence Indicator
+// ============================================================================
+//
+// Strategy Overview:
+//   This indicator combines three widely-used components into a single
+//   confluence-based trading framework:
+//
+//   1. Supertrend (ATR-based) — Determines trend direction and provides a
+//      dynamic trailing stop level. A flip from bearish to bullish (or vice
+//      versa) is the primary entry trigger.
+//
+//   2. VWAP (Volume Weighted Average Price) — Session-anchored fair value
+//      used by institutional traders. Acts as a directional filter: longs
+//      only above VWAP, shorts only below.
+//
+//   3. EMA 200 — Long-term trend filter. Longs require price above the EMA;
+//      shorts require price below.
+//
+// Entry Rules:
+//   LONG  — Price closes above both EMA 200 and VWAP, AND Supertrend flips
+//           from bearish to bullish on the current bar.
+//   SHORT — Price closes below both EMA 200 and VWAP, AND Supertrend flips
+//           from bullish to bearish on the current bar.
+//
+// Visual Aids:
+//   • Green/red Supertrend line (trailing stop)
+//   • Blue EMA 200 line
+//   • Orange VWAP line
+//   • Background shading when all three conditions align
+//   • Arrow + label markers for entry signals
+//   • HUD table summarising current market state
+//
+// Alerts:
+//   Four alert conditions are provided for long/short entries and Supertrend
+//   direction flips so that signals can be forwarded to webhooks or
+//   notifications.
+//
+// ============================================================================
+
+//@version=5
+indicator("Supertrend + VWAP + EMA Confluence", overlay=true, max_labels_count=500)
+
+// === INPUTS ===
+
+// Supertrend inputs
+atrPeriod = input.int(10, "ATR Period", minval=1)
+factor    = input.float(3.0, "Supertrend Multiplier", minval=0.1, step=0.1)
+
+// EMA input
+emaLength = input.int(200, "EMA Length", minval=1)
+
+// Risk-Reward (reserved for TP calculation extensions)
+rrRatio = input.float(2.0, "Risk-Reward Ratio", minval=0.1, step=0.1)
+
+// Display toggles
+showBg         = input.bool(true, "Show Background Coloring")
+showSignals    = input.bool(true, "Show Buy/Sell Signals")
+showVwap       = input.bool(true, "Show VWAP")
+showEma        = input.bool(true, "Show EMA")
+showSupertrend = input.bool(true, "Show Supertrend Line")
+showInfoTable  = input.bool(true, "Show Info Table")
+
+// === CALCULATIONS ===
+
+// EMA 200
+ema200 = ta.ema(close, emaLength)
+
+// VWAP
+vwapValue = ta.vwap(hlc3)
+
+// Supertrend
+[supertrendLine, supertrendDir] = ta.supertrend(factor, atrPeriod)
+
+// === CONDITIONS ===
+
+priceAboveEma  = close > ema200
+priceBelowEma  = close < ema200
+priceAboveVwap = close > vwapValue
+priceBelowVwap = close < vwapValue
+
+// ta.supertrend returns direction < 0 for bullish, > 0 for bearish
+bullishSupertrend = supertrendDir < 0
+bearishSupertrend = supertrendDir > 0
+
+supertrendFlipBull = bullishSupertrend and not bullishSupertrend[1]
+supertrendFlipBear = bearishSupertrend and not bearishSupertrend[1]
+
+// Entry signals — all three filters must agree AND Supertrend must flip
+longSignal  = priceAboveEma and priceAboveVwap and supertrendFlipBull
+shortSignal = priceBelowEma and priceBelowVwap and supertrendFlipBear
+
+// Trend state — all three filters aligned (no flip required)
+bullishTrend = priceAboveEma and priceAboveVwap and bullishSupertrend
+bearishTrend = priceBelowEma and priceBelowVwap and bearishSupertrend
+
+// === PLOTS ===
+
+// EMA
+plot(showEma ? ema200 : na, "EMA 200", color=color.blue, linewidth=2)
+
+// VWAP
+plot(showVwap ? vwapValue : na, "VWAP", color=color.orange, linewidth=2)
+
+// Supertrend
+stColor = bullishSupertrend ? color.green : color.red
+plot(showSupertrend ? supertrendLine : na, "Supertrend", color=stColor, linewidth=2, style=plot.style_linebr)
+
+// Background
+bgColor = showBg ? (bullishTrend ? color.new(color.green, 90) : bearishTrend ? color.new(color.red, 90) : na) : na
+bgcolor(bgColor, title="Trend Background")
+
+// Buy/Sell arrows + labels
+plotshape(showSignals and longSignal, title="Buy Signal", location=location.belowbar, style=shape.triangleup, size=size.small, color=color.green, text="BUY")
+plotshape(showSignals and shortSignal, title="Sell Signal", location=location.abovebar, style=shape.triangledown, size=size.small, color=color.red, text="SELL")
+
+// === ALERTS ===
+
+alertcondition(longSignal, title="Long Entry Signal", message="Confluence Long Entry: Price above EMA & VWAP, Supertrend flipped bullish")
+alertcondition(shortSignal, title="Short Entry Signal", message="Confluence Short Entry: Price below EMA & VWAP, Supertrend flipped bearish")
+alertcondition(supertrendFlipBull, title="Supertrend Flip Bullish", message="Supertrend flipped to Bullish")
+alertcondition(supertrendFlipBear, title="Supertrend Flip Bearish", message="Supertrend flipped to Bearish")
+
+// === INFO TABLE ===
+
+if showInfoTable and barstate.islast
+    var table infoTable = table.new(position.top_right, 2, 4, bgcolor=color.new(color.black, 80), border_width=1)
+    table.cell(infoTable, 0, 0, "Trend",      text_color=color.white, text_size=size.small)
+    table.cell(infoTable, 1, 0, bullishTrend ? "BULLISH" : bearishTrend ? "BEARISH" : "NEUTRAL", text_color=bullishTrend ? color.green : bearishTrend ? color.red : color.gray, text_size=size.small)
+    table.cell(infoTable, 0, 1, "vs EMA",      text_color=color.white, text_size=size.small)
+    table.cell(infoTable, 1, 1, priceAboveEma ? "ABOVE" : "BELOW", text_color=priceAboveEma ? color.green : color.red, text_size=size.small)
+    table.cell(infoTable, 0, 2, "vs VWAP",     text_color=color.white, text_size=size.small)
+    table.cell(infoTable, 1, 2, priceAboveVwap ? "ABOVE" : "BELOW", text_color=priceAboveVwap ? color.green : color.red, text_size=size.small)
+    table.cell(infoTable, 0, 3, "Supertrend",  text_color=color.white, text_size=size.small)
+    table.cell(infoTable, 1, 3, bullishSupertrend ? "BULLISH" : "BEARISH", text_color=bullishSupertrend ? color.green : color.red, text_size=size.small)
